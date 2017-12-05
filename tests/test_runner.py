@@ -14,12 +14,12 @@ class TestRunner(unittest.TestCase):
     def test_runner_process(self):
         runner = Runner()
         runner.process(TestRunner.imgpath, TestRunner.store_amount)
-        self.assertTrue(False)
+        self.assertTrue(False) # TODO: 暫定的に落としてるが、ちゃんとテスト書く
 
     def test_main_loop(self):
         runner = Runner()
         runner.main_loop()
-        self.assertTrue(False)
+        self.assertTrue(False) # TODO: 暫定的に落としてるが、ちゃんとテスト書く
 
 class TestScanner(unittest.TestCase):
     dir_empty  = "datasets/scan_test_dir/empty"
