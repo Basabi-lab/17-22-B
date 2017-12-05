@@ -16,21 +16,21 @@ class Resize:
         new_img = None
 
         if img.shape[0] == size:
-            new_img = add_zeros(img.T, size).T
+            new_img = Resize.add_zeros(img.T, size).T
         else:
-            new_img = add_zeros(img, size)
+            new_img = Resize.add_zeros(img, size)
 
         return new_img
 
-    def resize(img, size, padding=True):
+    def resize(img, size, padding_flg=True):
         x,y = img.shape[1], img.shape[0]
         padded = None
         if x > y:
-            resized = cv2.resize(img,None,fx=size/x, fy=size/x, interpolation = cv2.INTER_AREA)
+            resized = cv2.resize(img,None,fx=round(size/x), fy=round(size/x), interpolation = cv2.INTER_AREA)
         else:
-            resized = cv2.resize(img,None,fx=size/y, fy=size/y, interpolation = cv2.INTER_AREA)
-        if padding == True:
-            padded = padding(resized, size)
+            resized = cv2.resize(img,None,fx=round(size/y), fy=round(size/y), interpolation = cv2.INTER_AREA)
+        if padding_flg == True:
+            padded = Resize.padding(resized, size)
         else:
             padded = resized
 
