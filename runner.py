@@ -1,10 +1,8 @@
 import cv2
 import os
 import threading
-from queue import Queue
 import shutil
-
-from joblib import Parallel, delayed
+from queue import Queue
 
 from recog.recog  import Recog
 from store.store  import Store
@@ -51,7 +49,7 @@ class Scanner:
         return not self.queue.empty()
 
     def get_imgname(self):
-        return self.queue.get(block=True, timeout=1)
+        return self.queue.get(block=True)
 
     def scan_start(self):
         threading.Thread(target=self.scan,name="scan_thread",args=())
