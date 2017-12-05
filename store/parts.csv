@@ -1,0 +1,11 @@
+parts_id, size, amount, place_id
+A000,small,2,0
+B111,medium,3,0
+C222,large,3,0
+A333,medium,1,0
+B444,large,4,0
+C555,small,3,0
+A666,small,2,0
+B777,large,4,0
+C888,medium,1,0
+A999,large,1,0
