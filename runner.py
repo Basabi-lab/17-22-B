@@ -1,7 +1,20 @@
 import os
+
+from recog.recog import Recog
+from store.store import Store
+from plot.plot   import Plot
+
 class Runner:
     def __init__(self):
-        pass
+        self.recog = Recog("16")
+        self.store = Store()
+        self.plot  = Plot()
+
+    def process(self, imgpath, amount):
+        place_id_list = self.recog.recog(imgpath)
+        parts_id = self.store.store(''.join(place_id_list), amount)
+        self.plot.plotAt(parts_id)
+        self.plot.plot()
 
 class Scanner:
     def __init__(self, scan_dir):
