@@ -14,6 +14,7 @@ class Runner:
         place_id_list = self.recog.recog(imgpath)
         parts_id = self.store.store(''.join(place_id_list), amount)
         self.plot.plotAt(parts_id)
+        self.plot.plot()
 
 class Scanner:
     def __init__(self, scan_dir):
