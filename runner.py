@@ -27,12 +27,9 @@ class Scanner:
         self.queue = Queue()
         self.scan_start()
 
-    def is_empty(files):
-        return files == []
-
     def detect(self):
         files = os.listdir(self.scan_dir)
-        if Scanner.is_empty(files):
+        if files == []:
             return None
         else:
             return files[0]
