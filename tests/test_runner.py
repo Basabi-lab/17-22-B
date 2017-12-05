@@ -1,7 +1,6 @@
 import unittest
 from runner import Runner
 from runner import Scanner
-from runner import Queue
 from utils.utils import Utils
 
 class TestRunner(unittest.TestCase):
@@ -24,26 +23,28 @@ class TestRunner(unittest.TestCase):
 class TestScanner(unittest.TestCase):
     dir_empty  = "datasets/scan_test_dir/empty"
     dir_sample = "datasets/scan_test_dir/sample"
+    dir_work   = "datasets/work_test_dir"
     def test_img_detect(self):
-        empty  = Scanner(TestScanner.dir_empty)
-        sample = Scanner(TestScanner.dir_sample)
+        empty  = Scanner(TestScanner.dir_empty, TestScanner.dir_work)
+        sample = Scanner(TestScanner.dir_sample, TestScanner.dir_work)
         self.assertTrue(empty.detect() == None)
-        self.assertTrue(sample.detect() == "1")
-        # TODO: scan_dir_smapleにファイル2を追加
-        self.assertTrue(sample.detect() == "2")
+        self.assertTrue(sample.detect() == True)
 
-    def have_imgname(self):
+    def test_have_imgname(self):
         pass
 
-    def get_imgname(self):
+    def test_get_imgname(self):
         pass
 
     def test_img_move(self):
         pass
 
+    def test_scan_start(self):
+        empty = Scanner(TestScanner.dir_empty, TestScanner.dir_work)
+
     def test_img_scan(self):
-        empty  = Scanner(TestScanner.dir_empty)
-        sample = Scanner(TestScanner.dir_sample)
+        empty  = Scanner(TestScanner.dir_empty, TestScanner.dir_work)
+        sample = Scanner(TestScanner.dir_sample, TestScanner.dir_work)
         empty.scan()
         sample.scan()
 
