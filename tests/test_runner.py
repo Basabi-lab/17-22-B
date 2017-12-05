@@ -12,9 +12,13 @@ class TestRunner(unittest.TestCase):
 
     def test_runner_process(self):
         runner = Runner()
-        runner.process()
-        self.assertTrue(runner == runner)
-        self.assertFalse(runner == Runner())
+        runner.process(TestRunner.imgpath)
+        self.assertTrue(False)
+
+    def test_main_loop(self):
+        runner = Runner()
+        runner.main_loop()
+        self.assertTrue(False)
 
 class TestScanner(unittest.TestCase):
     dir_empty  = "datasets/scan_test_dir/empty"
