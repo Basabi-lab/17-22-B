@@ -1,7 +1,6 @@
 import cv2
 import os
 import threading
-import shutil
 from queue import Queue
 
 from recog.recog  import Recog
