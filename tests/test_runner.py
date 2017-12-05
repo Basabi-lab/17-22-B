@@ -6,13 +6,14 @@ from utils.utils import Utils
 
 class TestRunner(unittest.TestCase):
     imgpath = "datasets/testdata/test1.jpg"
+    store_amount = 1
     ans = ''.join(["A","B","C","0","3","2","6","8"])
     parts_id = "A001"
     place_id = 0
 
     def test_runner_process(self):
         runner = Runner()
-        runner.process(TestRunner.imgpath)
+        runner.process(TestRunner.imgpath, TestRunner.store_amount)
         self.assertTrue(False)
 
     def test_main_loop(self):
