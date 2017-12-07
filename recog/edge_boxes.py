@@ -33,7 +33,7 @@ class EdgeBoxes:
     # 隣接するedgeを繋げてつながるedgeを加工一つのボックス(1文字)をself.box_statusに入れる
     def edge_box(edge, box_status, first_i, first_j):
         stack = [(first_i, first_j)]
-        fix = range(-4,4)
+        fix = range(-15,15)
         while stack:
             now_i, now_j = stack.pop()
             for i in fix:

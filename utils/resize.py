@@ -24,16 +24,16 @@ class Resize:
 
     def resize(img, size, padding_flg=True):
         x,y = img.shape[1], img.shape[0]
+        resized = None
         padded = None
         if x > y:
-            resized = cv2.resize(img,None,fx=round(size/x), fy=round(size/x), interpolation = cv2.INTER_AREA)
+            resized = cv2.resize(img, None, fx=size/x, fy=size/x, interpolation = cv2.INTER_AREA)
         else:
-            resized = cv2.resize(img,None,fx=round(size/y), fy=round(size/y), interpolation = cv2.INTER_AREA)
+            resized = cv2.resize(img, None, fx=size/y, fy=size/y, interpolation = cv2.INTER_AREA)
+
         if padding_flg == True:
             padded = Resize.padding(resized, size)
         else:
             padded = resized
-
-        padded[padded > 0] = 255
 
         return padded
