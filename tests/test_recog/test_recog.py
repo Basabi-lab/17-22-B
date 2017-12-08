@@ -9,6 +9,10 @@ class TestRecog(unittest.TestCase):
     # imgans = np.array(["A","B","C","0","3","2","6","8"])
     imgpath = "datasets/testdata/test2.jpg"
     imgans = np.array(['4','0','A','8','B','9','1','5','2','C','6','1','3','3','7','3','2','5','1','8'])
+    # imgpath = "datasets/testdata/test3.jpg"
+    # imgans = np.array(['4','=','8','C','B'])
+    # imgpath = "datasets/testdata/test4.jpg"
+    # imgans = np.array(['A','3','0','4','=', 'B', 'C', '5', '0', '6', '7', '1', '2', '8'])
 
     def test_recog_attr(self):
         recog16 = Recog("16")
@@ -30,6 +34,7 @@ class TestRecog(unittest.TestCase):
     def test_recog_letter(self):
         recog16 = Recog.recog16()
         recog32 = Recog.recog32()
+        imgans = TestRecog.imgans
         ret16 = recog16.recog(TestRecog.imgpath, box_view=False)
         ret32 = recog32.recog(TestRecog.imgpath, box_view=False)
         acc16 = np.where(ret16 == TestRecog.imgans)[0].shape[0] / TestRecog.imgans.shape[0]
@@ -41,13 +46,11 @@ class TestRecog(unittest.TestCase):
     # def test_cross_validation(self):
     #     recog16 = Recog.recog16()
     #     recog32 = Recog.recog32()
-    #     print()
     #     score16 = recog16.cross_validation()
     #     score32 = recog32.cross_validation()
-    #     print(score16)
-    #     print(score32)
     #     self.assertTrue(score16 > 0.7)
     #     self.assertTrue(score32 > 0.7)
+    #     self.assertTrue(False)
 
     ## テストデータそれぞれのボックスを一枚として表示用
     # def test_recog_letter_with_show(self):

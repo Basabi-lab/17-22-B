@@ -85,6 +85,7 @@ class Recog:
         # model = KNeighborsClassifier(n_neighbors=1)
         # model = RandomForestClassifier(min_samples_leaf=1, max_depth=15, max_features=5, min_samples_split=5, n_estimators=300, n_jobs=1, random_state=seed)
         # model = svm.SVC(kernel="rbf", C=10, gamma=0.001) # 0.8乗った
+        model = svm.SVC(kernel="poly", C=1000, gamma=0.001, degree=2) # 0.8乗った
         # model = GaussianNB(priors=)
         # model = GaussianNB()
         # model = LogisticRegression(C=0.001, solver='newton-cg', random_state=seed)
