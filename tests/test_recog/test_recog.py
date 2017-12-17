@@ -50,9 +50,9 @@ class TestRecog(unittest.TestCase):
 
     ## 識別結果を返す(重いからコメントアウト推奨)
     def test_recog_letter(self):
-        imgpath, imgans = TestRecog.get_test_img(0)
-        recog16 = Recog.recog16().training(model_name="SVM")
-        recog32 = Recog.recog32().training(model_name="SVM")
+        imgpath, imgans = TestRecog.get_test_img(1)
+        recog16 = Recog.recog16().training(model_name="GNB")
+        recog32 = Recog.recog32().training(model_name="GNB")
         model16 = recog16.model
         model32 = recog32.model
         ret16 = recog16.recog(imgpath, box_view=False)
@@ -64,10 +64,8 @@ class TestRecog(unittest.TestCase):
 
     ## 精度確認用(重いからコメントアウト推奨)
     # def test_cross_validation(self):
-    #     recog16 = Recog.recog16()
-    #     recog32 = Recog.recog32()
-    #     score16 = recog16.cross_validation()
-    #     score32 = recog32.cross_validation()
+    #     score16 = Recog.recog16().cross_validation()
+    #     score32 = Recog.recog32().cross_validation()
     #     self.assertTrue(score16 > 0.7)
     #     self.assertTrue(score32 > 0.7)
     #     self.assertTrue(False)

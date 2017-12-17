@@ -21,9 +21,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import KFold
 
 from utils.read_datasets import Datasets
-from recog.edge_boxes import EdgeBoxes as EdgeBoxes
-from recog.image_converter import ImageConverter as ImageConverter
-from recog.data_format import DataFormat as DataFormat
+from utils.resize import Resize
+from recog.edge_boxes import EdgeBoxes
+from recog.data_format import DataFormat
 
 seed = 10
 
@@ -159,7 +159,7 @@ class Recog(RecogTrainer):
         edge, edge_status = self.__get_edge_and_box(imgpath)
 
         resized = np.array([
-            ImageConverter.resize(
+            Resize.resize(
                 self.__get_box_img(edge, box),
                 int(self.size))
             for box in edge_status])
