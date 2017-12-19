@@ -21,22 +21,127 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import KFold
 
 from utils.read_datasets import Datasets
-from recog.edge_boxes import EdgeBoxes as EdgeBoxes
-from recog.image_converter import ImageConverter as ImageConverter
-from recog.data_format import DataFormat as DataFormat
+from utils.resize import Resize
+from recog.edge_boxes import EdgeBoxes
+from recog.data_format import DataFormat
 
 seed = 10
 
-class Recog:
+class RecogTrainer:
     def __init__(self, size):
         self.size = size
         self.train = Datasets(self.size)
-        self.generate_model()
+        self.model = None
+
+    def training(self, model_name="KNN", extract_name="all"):
+        model, extract = self.strategy(model_name, extract_name)
+
+        data, target = copy.deepcopy(self.train.data), copy.deepcopy(self.train.target)
+        data = self.pre(data)
+        data = extract(data)
+
+        model.fit(data, target)
+        self.model = model
+        return self
+
+    def grid_search(self):
+        train, target = copy.deepcopy(self.train.data), copy.deepcopy(self.train.target)
+
+        model = GridSearchCV(
+                    GaussianNB(), # 識別器
+                    {"class_count": 13},
+                    cv=11)
+
+        model.fit(train, target)
+        print(model.best_params_)
+        print(model.best_score_)
+
+        return model.best_score_
+
+    def model_strategy(self, model_name="KNN"):
+        model = None
+        if model_name == "KNN":
+            model = KNeighborsClassifier(n_neighbors=1)
+        elif model_name == "RFC":
+            model = RandomForestClassifier(min_samples_leaf=1,max_depth=15,max_features=5,min_samples_split=5,n_estimators=300,n_jobs=1,random_state=seed)
+        elif model_name == "SVM":
+            model = svm.SVC(kernel="rbf", C=10, gamma=0.001)
+            # model = svm.SVC(kernel="poly",C=1000,gamma=0.001,degree=2)
+        elif model_name == "GNB":
+            model = GaussianNB()
+        elif model_name == "LR":
+            model = LogisticRegression(C=0.001,solver='newton-cg',random_state=seed)
+        elif model_name == "GBC":
+            model = GradientBoostingClassifier(random_state=seed)
+        else:
+            model = KNeighborsClassifier(n_neighbors=1)
+        return model
+
+    def extract_strategy(self, extract_name="all"):
+        extract = None
+        if extract_name == "all":
+            extract = lambda train: train.reshape((train.shape[0], train.shape[1]*train.shape[2]))
+        elif extract_name == "frame4":
+            extract = lambda train: np.array([DataFormat.framing(d, 4) for d in train])
+        elif extract_name == "frame8":
+            extract = lambda train: np.array([DataFormat.framing(d, 8) for d in train])
+        elif extract_name == "row":
+            extract = lambda train: np.array([DataFormat.row(d) for d in train])
+        else:
+            extract = lambda train: train.reshape((train.shape[0], train.shape[1]*train.shape[2]))
+        return extract
+
+    def pre(self, data):
+        ddata = copy.deepcopy(data)
+        ddata[ddata > 0] = 1.0 # 白いとこが255で黒いとこが0なので、255は1にしたほうが扱い易いので修正
+        return ddata.astype(np.float64)
+
+    def cross_validation(self, model_name="KNN", extract_name="all"):
+        kf = KFold(n_splits=11, random_state=seed, shuffle=True)
+
+        model, extract = self.strategy(model_name, extract_name)
+
+        train, target = copy.deepcopy(self.train.data), copy.deepcopy(self.train.target)
+
+        train = self.pre(train)
+        train = extract(train)
+
+        scores = np.array([])
+        for train_i, test_i in kf.split(train, target):
+            model.fit(train[train_i], target[train_i])
+            scores = np.append(scores, model.score(train[test_i], target[test_i]))
+
+        return np.mean(scores)
+
+    def strategy(self, model_name="KNN", extract_name="all"):
+        return self.model_strategy(model_name), self.extract_strategy(extract_name)
+
+    def convert(self, data):
+        _, extract = self.strategy()
+        data = self.pre(data)
+
+        return extract(data)
+
+    def generate_model(self):
+        model, extract = self.strategy()
+
+        data, target = copy.deepcopy(self.train.data), copy.deepcopy(self.train.target)
+        data = extract(data)
+
+        model.fit(data, target)
+        return model
+
+
+class Recog(RecogTrainer):
+    def __init__(self, size):
+        np.random.seed(seed)
+        super(Recog, self).__init__(size)
 
     def __eq__(self, other):
         return \
             self.size == other.size and \
-            self.train == other.train
+            self.train == other.train and \
+            self.model == other.model
 
     def recog16():
         return Recog("16")
@@ -54,7 +159,7 @@ class Recog:
         edge, edge_status = self.__get_edge_and_box(imgpath)
 
         resized = np.array([
-            ImageConverter.resize(
+            Resize.resize(
                 self.__get_box_img(edge, box),
                 int(self.size))
             for box in edge_status])
@@ -77,76 +182,22 @@ class Recog:
         key = cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    def cross_validation(self):
-        np.random.seed(seed)
-
-        kf = KFold(n_splits=11, random_state=seed, shuffle=True)
-
-        # model = KNeighborsClassifier(n_neighbors=1)
-        # model = RandomForestClassifier(min_samples_leaf=1, max_depth=15, max_features=5, min_samples_split=5, n_estimators=300, n_jobs=1, random_state=seed)
-        # model = svm.SVC(kernel="rbf", C=10, gamma=0.001) # 0.8乗った
-        model = svm.SVC(kernel="poly", C=1000, gamma=0.001, degree=2) # 0.8乗った
-        # model = GaussianNB(priors=)
-        # model = GaussianNB()
-        # model = LogisticRegression(C=0.001, solver='newton-cg', random_state=seed)
-        # model = GradientBoostingClassifier(random_state=seed)
-
-        # model = GridSearchCV(
-        #             GaussianNB(), # 識別器
-        #             {"class_count": },
-        #             cv=11)
-
+    def grid_search(self):
         train, target = copy.deepcopy(self.train.data), copy.deepcopy(self.train.target)
 
-        train[train > 0] = 1.0 # 白いとこが255で黒いとこが0なので、255は1にしたほうが扱い易いので修正
-        train = train.astype(np.float64)
+        model = GridSearchCV(
+                    GaussianNB(), # 識別器
+                    {"class_count": 13},
+                    cv=11)
 
-        # train = train.reshape((train.shape[0], train.shape[1]*train.shape[2]))
+        model.fit(train, target)
+        print(model.best_params_)
+        print(model.best_score_)
 
-        # train = np.array([DataFormat.framing(d, 8) for d in train])
-
-        train = np.array([DataFormat.row(d) for d in train])
-
-        ## 以下5つは使い物にならない
-        # train = np.array([DataFormat.column(d) for d in train])
-        # train = np.array([DataFormat.step_row(d, 16) for d in train])
-        # train = np.array([DataFormat.step_column(d, 2) for d in train])
-        # train = np.array([DataFormat.continuous_row(d, 8) for d in train])
-        # train = np.array([DataFormat.continuous_column(d, 2) for d in train])
-
-        # model.fit(train, target)
-        # print(model.best_params_)
-        # print(model.best_score_)
-
-        scores = np.array([])
-        for train_i, test_i in kf.split(train, target):
-            model.fit(train[train_i], target[train_i])
-            scores = np.append(scores, model.score(train[test_i], target[test_i]))
-
-        # return model.best_score_
-        return np.mean(scores)
-
-    def convert(data):
-        data[data > 0] = 1.0 # 白いとこが255で黒いとこが0なので、255は1にしたほうが扱い易いので修正
-        data = data.astype(np.float64)
-        data = np.array([DataFormat.row(d) for d in data])
-        # data = np.array([DataFormat.framing(d, 4) for d in data])
-        # data = data.reshape((data.shape[0], data.shape[1]*data.shape[2]))
-        return data
-
-    def generate_model(self):
-        # self.model = KNeighborsClassifier(n_neighbors=1)
-        self.model = svm.SVC(kernel="rbf", C=10, gamma=0.001)
-        # self.model = RandomForestClassifier(min_samples_leaf=1, max_depth=15, max_features=5, min_samples_split=5, n_estimators=300, n_jobs=1, random_state=seed)
-        # self.model = GaussianNB()
-
-        data, target = copy.deepcopy(self.train.data), copy.deepcopy(self.train.target)
-        data = Recog.convert(data)
-
-        self.model.fit(data, target)
+        return model.best_score_
 
     def __read_letters(self, letter_imgs):
         test = copy.deepcopy(letter_imgs)
-        test = Recog.convert(test)
+        test = self.convert(test)
 
         return self.model.predict(test)
